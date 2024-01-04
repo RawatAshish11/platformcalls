@@ -1,6 +1,10 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import 'package:webview_flutter/webview_flutter.dart';
 void main() {
   runApp(const MyApp());
 }
@@ -17,10 +21,12 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(),
+      home:  MyHomePage(),
     );
   }
 }
+
+
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -30,35 +36,45 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
   static const methodChannel = MethodChannel('com.julo.barometer/meter');
   static const pressureChannel = EventChannel('com.julo.barometer/pressure');
 
   String _sensorAvailable = "Unknown";
+  String batteryData = "Unknown";
 
   Future<void> _checkAvailability() async {
     try {
       var available = await methodChannel.invokeMethod("isSensorAvailable");
+
+      print("available");
+      print(available);
       setState(() {
-        _sensorAvailable = available.toString();
+        _sensorAvailable = available;
       });
     } catch (error) {
-      print("error");
-      print(error);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text("Sensor Available Availble: $_sensorAvailable"),
-          ElevatedButton(
-              onPressed: _checkAvailability,
-              child: Text("Check Sensor")
-          )
-        ],
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+
+            Center(child: Text("Sensor Available Availble: $_sensorAvailable")),
+
+            Center(child: Text("Battery Data: $batteryData")),
+
+            ElevatedButton(
+                onPressed: _checkAvailability,
+                child: const Text("Check Sensor")
+            )
+          ],
+        ),
       ),
     );
   }

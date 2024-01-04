@@ -12,16 +12,17 @@ class StreamHandler(private val sensorManager:SensorManager,
                    private  var interval: Int=
                        SENSOR_DELAY_NORMAL):
                    EventChannel.StreamHandler,SensorEventListener {
-   private val sensor = sensorManager.getDefaultSensor(sensorType)
-    private var eventSink: EventChannel.EventSink? = null
 
-    override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
-        if(sensor != null)
-        {
-            eventSink = events
-            sensorManager.registerListener(this, sensor, interval)
-        }
-    }
+            private val sensor = sensorManager.getDefaultSensor(sensorType)
+            private var eventSink: EventChannel.EventSink? = null
+
+            override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                if(sensor != null)
+                {
+                    eventSink = events
+                    sensorManager.registerListener(this, sensor, interval)
+                }
+            }
 
     override fun onCancel(arguments: Any?) {
        sensorManager.unregisterListener(this)
