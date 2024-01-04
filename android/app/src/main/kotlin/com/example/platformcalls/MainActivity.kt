@@ -48,12 +48,13 @@ class MainActivity: FlutterFragmentActivity() {
 
         methodChannel = MethodChannel(messenger, METHOD_CHANNEL_NAME)
         methodChannel!!.setMethodCallHandler{
-            call,result -> if(call.method == "isSensorAvailable")
+            call,result -> if(call.method == "``````isSensorAvailable``````")
         {
 
             val intent = Intent(this, WebView::class.java)
             intent.putExtra("appBarTitle", "Ebooks")
             startActivity(intent)
+
             result.success(true)
         }
             if(call.method == "deviceInfo")
