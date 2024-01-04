@@ -52,6 +52,7 @@ class MainActivity: FlutterFragmentActivity() {
         {
 
             val intent = Intent(this, WebView::class.java)
+            intent.putExtra("appBarTitle", "Ebooks")
             startActivity(intent)
             result.success(true)
         }
