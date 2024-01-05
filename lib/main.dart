@@ -47,7 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       var available = await methodChannel.invokeMethod("isSensorAvailable");
 
-      print("available");
+      print("available method channel");
       print(available);
       setState(() {
         _sensorAvailable = available;
@@ -55,6 +55,8 @@ class _MyHomePageState extends State<MyHomePage> {
     } catch (error) {
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {

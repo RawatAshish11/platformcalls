@@ -1,4 +1,5 @@
 package com.example.platformcalls
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.hardware.Sensor
@@ -6,6 +7,9 @@ import android.hardware.SensorManager
 import android.net.ConnectivityManager
 import android.net.Network
 import android.os.BatteryManager
+import android.util.Log
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.NonNull
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.android.FlutterFragmentActivity
@@ -19,13 +23,24 @@ class MainActivity: FlutterFragmentActivity() {
     private val METHOD_CHANNEL_NAME = "com.julo.barometer/meter";
     private val EVENT_CHANNEL_NAME = "com.julo.barometer/pressure";
 
+    companion object{
+        private val TAG= "HOME_SCREEN_ARCH_d"
+        private val WEBVIEW_REQUEST_CODE = 101
+        val INTENT_WEBVIEW_KEY = "INTENT_WEBVIEW_KEY"
+        val INTENT_EXTRAS_KEY = "INTENT_EXTRAS_KEY"
 
-
+    }
+//    val openHomeWebView = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result ->
+//        if (result.resultCode == Activity.RESULT_OK) {
+//            val quizzReturnData = result.data?.getStringExtra(INTENT_WEBVIEW_KEY)
+//            Log.d(TAG, "quizzReturnData:$quizzReturnData ")
+//        }
+//    }
     private var methodChannel: MethodChannel? = null
     private var pressureChannel: EventChannel? = null
     private lateinit var sensorManager: SensorManager
     private var pressureStreamHandler: StreamHandler? = null
-
+    private var pendingResult:  MethodChannel.Result? = null
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
@@ -47,35 +62,21 @@ class MainActivity: FlutterFragmentActivity() {
         sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
 
         methodChannel = MethodChannel(messenger, METHOD_CHANNEL_NAME)
+
         methodChannel!!.setMethodCallHandler{
-            call,result -> if(call.method == "``````isSensorAvailable``````")
+
+
+            call,result -> if(call.method == "isSensorAvailable")
         {
 
             val intent = Intent(this, WebView::class.java)
             intent.putExtra("appBarTitle", "Ebooks")
-            startActivity(intent)
-
-            result.success(true)
+            intent.putExtra("appBarUrl", "https://www.geeksforgeeks.org/singleton-class-java/")
+//            openHomeWebViewView.launch(intent)
+            startActivityForResult(intent,101)
+            pendingResult = result
         }
-            if(call.method == "deviceInfo")
-            {
-              var service  =  context.getSystemService(Context.BATTERY_SERVICE)  as BatteryManager
-                val connectivityManager = context.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
-                val network: Network = connectivityManager.activeNetwork!!
-                val capabilities = connectivityManager.getNetworkCapabilities(network)
 
-
-
-                result.success(hashMapOf(
-                        "build" to android.os.Build.MANUFACTURER.toString(),
-                        "name" to android.os.Build.BOARD,
-                        "bootloader" to android.os.Build.BOOTLOADER,
-                        "finger" to android.os.Build.HARDWARE,
-                        "hardware" to android.os.Build.HARDWARE,
-                        "product" to android.os.Build.MODEL,
-
-                        ));
-            }
             else{
                 result.notImplemented()
         }
@@ -86,9 +87,24 @@ class MainActivity: FlutterFragmentActivity() {
         pressureChannel!!.setStreamHandler(pressureStreamHandler)
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+    if(requestCode==101 && resultCode ==Activity.RESULT_OK){
+        val quizzReturnData = data?.getStringExtra(INTENT_WEBVIEW_KEY)
+        Log.d(TAG, "quizzReturnData:$quizzReturnData ")
+        Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show()
+        pendingResult?.success(quizzReturnData)
+    }
+
+
+    }
+
+
     private fun tearDownChannels()
     {
         methodChannel!!.setMethodCallHandler(null)
         pressureChannel!!.setStreamHandler(null)
     }
+
+
 }

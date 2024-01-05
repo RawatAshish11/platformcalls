@@ -1,9 +1,13 @@
 package com.example.platformcalls
 
+import android.app.Activity
 import android.app.ProgressDialog
+import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.webkit.PermissionRequest
 import android.webkit.WebChromeClient
 import android.webkit.WebSettings
@@ -12,23 +16,35 @@ import com.example.platformcalls.databinding.ActivityWebViewBinding
 import java.net.CookieManager
 
 import android.view.View
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 
 
 import android.webkit.WebView
+import androidx.appcompat.app.AppCompatDelegate
 
 
 class WebView : AppCompatActivity() {
     private var chatWebSettings : WebSettings? = null
     private var chatCookieManager: CookieManager? = null
 
-    val urlToLoad = "https://shubhamvermarg822e.blob.core.windows.net/e-learning-app-container/ebook_document/f7c4a615-dbac-4387-9096-226007fe117eThe%20Secret%20Garden%27s%20Song/wetransfer_snake-rabbit/Snake%20&%20Rabbit_New%20File%20-%20Presenter%20output/presentation_html5.html"
+
+    var urlToLoad : String? = null
+    var appBarName : String? = null
     //      val urlToLoad = "https://www.geeksforgeeks.org/singleton-class-java/"
+    companion object {
+        val TAG = "WebViewActivity_d"
+    }
+
     private lateinit var _binding:ActivityWebViewBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = ActivityWebViewBinding.inflate(layoutInflater)
         setContentView(_binding.root)
+        appBarName = intent.getStringExtra("appBarTitle").toString()
         setToolBar()
+        urlToLoad = intent.getStringExtra("appBarUrl").toString()
+
         loadWebView()
     }
     private fun setToolBar() {
@@ -37,15 +53,25 @@ class WebView : AppCompatActivity() {
 
 // Enable the Up button and set its click listener
         val actionBar = supportActionBar
+        actionBar?.title = "Quiz"
+
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true)       // adds the back arrow functionality.
             actionBar.setDisplayShowHomeEnabled(true)       // ensures the arrow is visible.
         }
 
-// Handle navigation up click using lambda
+        _binding.myToolbar.setTitleTextColor(resources.getColor(R.color.cardview_dark_background))     // set title color
+
+        // Set back navigation arrow color to white (using AppCompatDelegate for compatibility)
+//        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
+//        _binding.myToolbar.navigationIcon = resources.getDrawable(R.drawable.abc_ic_ab_back_material, theme)   // set custom back btn
+        _binding.myToolbar.navigationIcon?.setTint(resources.getColor(R.color.cardview_dark_background))   // set Navigation color
+
+        // Handle navigation up click using lambda
         _binding.myToolbar.setNavigationOnClickListener {
             onBackPressed() // Use onBackPressed() for default back navigation
         }
+        _binding.myToolbar.setBackgroundColor(resources.getColor(R.color.cardview_dark_background))
     }
 
     private fun loadWebView() {
@@ -76,6 +102,51 @@ class WebView : AppCompatActivity() {
         }
 
         _binding?.joinMeetingWebView?.webViewClient  = object : WebViewClient(){
+
+            override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+                return super.shouldOverrideUrlLoading(view, url)
+            }
+
+            /*
+                        * Intercepts navigation within a WebView before it happens.
+                        * Gives you an opportunity to decide whether to allow the WebView to handle the navigation or handle it yourself.
+                        * */
+            override fun shouldOverrideUrlLoading(      // todo: try this
+                view: WebView?,
+                request: WebResourceRequest?
+            ): Boolean {
+
+                Log.d(TAG + 1, "url2::::::::${request?.url}")
+                Log.d(TAG + 1, "view2:${view?.url.toString()}")
+                return false
+            }
+
+            /*
+                        * Intercepts requests for web resources (HTML, CSS, JavaScript, images, etc.) before they're sent to the network.
+                        * Allows you to take control over these requests, enabling customization, filtering, or blocking based on your app's needs.
+                        * */
+            override fun shouldInterceptRequest(
+                view: WebView?,
+                request: WebResourceRequest?
+            ): WebResourceResponse? {
+                Log.d(TAG, "[shouldInterceptRequest] url::::::::: ${request?.url}")
+                var quizzUrl = request?.url
+                onQuizLastPageSuccess(quizzUrl)    // to fininsh the screen & return result
+
+                if (!request?.url.toString().startsWith("https://")) {
+                    Log.d(
+                        TAG,
+                        "[shouldInterceptRequest][NON-HTTPS] Blocked access to ${request?.url}"
+                    )
+                    return WebResourceResponse(
+                        "text/javascript",
+                        "UTF-8",
+                        null
+                    ) // Deny non-HTTPS URLs
+                }
+                return null
+            }
+
 
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 super.onPageStarted(view, url, favicon)
@@ -113,5 +184,14 @@ class WebView : AppCompatActivity() {
 
         _binding?.joinMeetingWebView?.loadUrl(urlToLoad!!)
 
+    }
+    // https://shubhamvermarg822e.blob.core.windows.net/e-learning-app-container/Success.html
+    private fun onQuizLastPageSuccess(quizzUrl: Uri?) {
+        if (quizzUrl.toString().contains("Success.html")) {
+            val resultIntent = Intent()
+            resultIntent.putExtra(MainActivity.INTENT_WEBVIEW_KEY, "Success.html")
+            setResult(Activity.RESULT_OK, resultIntent)
+            finish()
+        }
     }
 }
