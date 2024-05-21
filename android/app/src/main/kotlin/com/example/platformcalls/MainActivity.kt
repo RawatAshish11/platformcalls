@@ -23,24 +23,19 @@ class MainActivity: FlutterFragmentActivity() {
     private val METHOD_CHANNEL_NAME = "com.julo.barometer/meter";
     private val EVENT_CHANNEL_NAME = "com.julo.barometer/pressure";
 
-    companion object{
         private val TAG= "HOME_SCREEN_ARCH_d"
         private val WEBVIEW_REQUEST_CODE = 101
         val INTENT_WEBVIEW_KEY = "INTENT_WEBVIEW_KEY"
         val INTENT_EXTRAS_KEY = "INTENT_EXTRAS_KEY"
 
-    }
-//    val openHomeWebView = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result ->
-//        if (result.resultCode == Activity.RESULT_OK) {
-//            val quizzReturnData = result.data?.getStringExtra(INTENT_WEBVIEW_KEY)
-//            Log.d(TAG, "quizzReturnData:$quizzReturnData ")
-//        }
-//    }
+
+
     private var methodChannel: MethodChannel? = null
     private var pressureChannel: EventChannel? = null
     private lateinit var sensorManager: SensorManager
     private var pressureStreamHandler: StreamHandler? = null
     private var pendingResult:  MethodChannel.Result? = null
+
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 

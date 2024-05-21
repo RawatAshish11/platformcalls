@@ -8,6 +8,7 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.webkit.PermissionRequest
 import android.webkit.WebChromeClient
 import android.webkit.WebSettings
@@ -21,6 +22,7 @@ import android.webkit.WebResourceResponse
 
 
 import android.webkit.WebView
+import android.widget.Toolbar
 import androidx.appcompat.app.AppCompatDelegate
 
 
@@ -53,25 +55,26 @@ class WebView : AppCompatActivity() {
 
 // Enable the Up button and set its click listener
         val actionBar = supportActionBar
-        actionBar?.title = "Quiz"
-
+        _binding.appBartitle.text = appBarName
         if (actionBar != null) {
+            actionBar?.setDisplayShowTitleEnabled(false)
             actionBar.setDisplayHomeAsUpEnabled(true)       // adds the back arrow functionality.
             actionBar.setDisplayShowHomeEnabled(true)       // ensures the arrow is visible.
         }
-
+//        val layoutParams = _binding.myToolbar.layoutParams as Toolbar.LayoutParams
+//        layoutParams.gravity = Gravity.CENTER
         _binding.myToolbar.setTitleTextColor(resources.getColor(R.color.cardview_dark_background))     // set title color
 
         // Set back navigation arrow color to white (using AppCompatDelegate for compatibility)
-//        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
-//        _binding.myToolbar.navigationIcon = resources.getDrawable(R.drawable.abc_ic_ab_back_material, theme)   // set custom back btn
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
+        _binding.myToolbar.navigationIcon = resources.getDrawable(R.drawable.abc_ic_ab_back_material, theme)   // set custom back btn
         _binding.myToolbar.navigationIcon?.setTint(resources.getColor(R.color.cardview_dark_background))   // set Navigation color
 
         // Handle navigation up click using lambda
         _binding.myToolbar.setNavigationOnClickListener {
             onBackPressed() // Use onBackPressed() for default back navigation
         }
-        _binding.myToolbar.setBackgroundColor(resources.getColor(R.color.cardview_dark_background))
+        _binding.myToolbar.setBackgroundColor(resources.getColor(R.color.cardview_light_background))
     }
 
     private fun loadWebView() {
@@ -189,7 +192,7 @@ class WebView : AppCompatActivity() {
     private fun onQuizLastPageSuccess(quizzUrl: Uri?) {
         if (quizzUrl.toString().contains("Success.html")) {
             val resultIntent = Intent()
-            resultIntent.putExtra(MainActivity.INTENT_WEBVIEW_KEY, "Success.html")
+            resultIntent.putExtra("INTENT_WEBVIEW_KEY", "Success.html")
             setResult(Activity.RESULT_OK, resultIntent)
             finish()
         }

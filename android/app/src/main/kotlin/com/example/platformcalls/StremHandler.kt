@@ -9,8 +9,7 @@ import io.flutter.plugin.common.EventChannel
 
 class StreamHandler(private val sensorManager:SensorManager,
                    sensorType: Int,
-                   private  var interval: Int=
-                       SENSOR_DELAY_NORMAL):
+                   private  var interval: Int= SENSOR_DELAY_NORMAL):
                    EventChannel.StreamHandler,SensorEventListener {
 
             private val sensor = sensorManager.getDefaultSensor(sensorType)
